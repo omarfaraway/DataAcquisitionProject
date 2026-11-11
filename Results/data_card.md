@@ -1,6 +1,6 @@
 # Data Card — Historical Weather in the Grenoble Area
 
-**Pair names:** [Omar FARHAT] — [Omar Fathi]
+**Pair names:** [Omar FARHAT] — [Omar FATHI]
 
 **Source:** Open-Meteo Historical Weather API
 
