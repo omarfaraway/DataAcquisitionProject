@@ -1,6 +1,8 @@
 # Data Card — Grenoble Area Weather
 
+
 **Pair:** Omar FARHAT — Omar Fathi
+
 
 ### 1. Source & Collection (M1)
 **Source:** Open-Meteo Historical Weather API (`https://archive-api.open-meteo.com/v1/archive`).
