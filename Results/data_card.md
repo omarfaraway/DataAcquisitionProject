@@ -1,53 +1,49 @@
-# Data Card — Historical Weather in the Grenoble Area
+# Data Card — Grenoble Area Weather
 
-**Pair names:** [Omar FARHAT] — [Omar Fathi]
+**Pair:** Omar FARHAT — Omar Fathi
 
-**Source:** Open-Meteo Historical Weather API
+### 1. Source & Collection (M1)
+**Source:** Open-Meteo Historical Weather API (`https://archive-api.open-meteo.com/v1/archive`).
 
-**Registered scope (M0):** Temperature, relative humidity, precipitation, wind speed and snow depth for Grenoble and nearby locations over two years.
+**Method:** Python (`requests`, `pandas`), JSON converted to Parquet; no pagination.
 
-### 1. Source
-Open-Meteo Historical Weather API.
+**Period:** 01/10/2024–30/09/2026.
 
-Endpoint: `https://archive-api.open-meteo.com/v1/archive`
+**Scope:** 52,560 hourly records (17,520/location) from Grenoble (45.18, 5.72), Chamrousse (45.13, 5.88), and Voiron (45.36, 5.59). Coordinate-based estimates replaced the originally planned station observations.
 
-### 2. Collection Method & Dates
-Data was collected using Python (`requests`, `pandas`) through API requests for three geographic coordinates. The JSON responses were combined into a single dataset and stored in Parquet format.
+### 2. Schema
+| Column | Type / Unit |
+|---|---|
+| time, location | datetime, string |
+| temperature_2m | float, °C |
+| relative_humidity_2m | integer, % |
+| precipitation | float, mm |
+| wind_speed_10m | float, km/h |
+| snow_depth | float, m |
 
-Historical period: October 1, 2024 – September 30, 2026.
-No pagination was required because the Open-Meteo API returned the requested hourly data for each location in a single response.
-
-### 3. Scope & Size
-52,560 hourly observations across three locations, with 17,520 observations per location:
-
-- Grenoble (45.18, 5.72)
-- Chamrousse (45.13, 5.88)
-- Voiron (45.36, 5.59)
-
-The M1 scope was revised from nearby weather stations to coordinate-based historical weather estimates.
-
-### 4. Schema
-| Column | Type | Description |
+### 3. Quality & Cleaning (M2)
+| Check / Decision | Reason | Rows affected |
 |---|---|---|
-| time | datetime | Hourly timestamp |
-| location | string | Geographic location |
-| temperature_2m | float | Temperature (°C) |
-| relative_humidity_2m | integer | Relative humidity (%) |
-| precipitation | float | Precipitation (mm) |
-| wind_speed_10m | float | Wind speed (km/h) |
-| snow_depth | float | Snow depth (m) |
+| Missing values | Completeness | 0 |
+| Duplicate records | Uniqueness | 0 |
+| Hourly continuity | Detect gaps | 0 |
+| Invalid values | Physical validity | 0 |
+| Keep plausible extremes | Preserve weather events | 0 removed |
 
-### 5. Data Quality & Limitations
-No missing values, duplicate location-time observations, irregular hourly intervals or invalid non-negative measurements were detected. No rows were removed.
+**Result:** No rows removed (52,560 retained). Coverage is limited to three locations and two years; API values are historical estimates, not direct station observations.
 
-The data represents historical weather estimates for geographic coordinates rather than direct observations from physical weather stations. Results are limited to three locations and two years.
+### 4. Mining (M3)
+**Unit:** Location-day (2,190 rows).
 
-### 6. License / Terms of Service
-Open-Meteo provides free API access for non-commercial and educational purposes. The weather data is licensed under Creative Commons Attribution 4.0 International (CC BY 4.0), which permits reuse and redistribution with proper attribution.
+**Features:** Daily mean temperature, humidity, wind and snow depth; total daily precipitation.
 
-Data source: Open-Meteo (https://open-meteo.com/).
+**Method:** StandardScaler + K-Means, testing k = 2–6.
 
-The collected data was cleaned, aggregated and analyzed for an academic project.
+**Choice:** k = 2 (best silhouette score: 0.421).
 
-### 7. GDPR
-The dataset contains meteorological variables, timestamps and geographic locations only. It does not contain personal data or identifiable individuals.
+**Clusters:** 0 — Cold and Snowy Days (235, mainly Chamrousse); 1 — Other Weather Conditions (1,955).
+
+### 5. License & GDPR
+**License:** CC BY 4.0 (attribution required).
+
+**GDPR:** No personal or identifiable data.
